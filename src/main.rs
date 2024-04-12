@@ -1,10 +1,12 @@
 use rusqlite::Connection;
 use reqwest::Error;
 use dotenv::dotenv;
+use stats_api_rust::print_passed_students;
 use std::env;
 
 use stats_api_rust::database::get_students;
-use stats_api_rust::get_users_pr_counts;
+use stats_api_rust::database::get_projects;
+use stats_api_rust::update_users_pr_counts;
 
 fn main() -> Result<(),Error> {
 
@@ -54,12 +56,11 @@ fn main() -> Result<(),Error> {
 
     let conn = Connection::open("./devDB.db").expect("devDB.db not found.");
 
-    let kwoc_students = get_students(&conn).expect("get-students failed.");
+    let mut kwoc_students = get_students(&conn).expect("get-students failed.");
+    let kwoc_projects = get_projects(&conn).expect("get-projects failed.");
 
-    let users = get_users_pr_counts(&client, "nik132-eng", "chrome-extensions",kwoc_start_time,kwoc_mid_evals_time,&kwoc_students).unwrap();
+    update_users_pr_counts(&client,kwoc_start_time,kwoc_mid_evals_time,&mut kwoc_students, &kwoc_projects).unwrap();
 
-    for (key, value) in users.iter() {
-        println!("{key} {:?}",value);
-    }
+    print_passed_students(&kwoc_students).expect("Printing failed.");
     Ok(())
 }
