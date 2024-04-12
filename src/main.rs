@@ -1,9 +1,13 @@
+use rusqlite::Connection;
 use serde::Deserialize;
 use reqwest::Error;
 use regex::Regex;
 use dotenv::dotenv;
 use std::{collections::HashMap, env};
 use chrono::DateTime;
+
+mod database;
+use database::{Student,get_students};
 
 const PER_PAGE: u32 = 50;
 
@@ -76,9 +80,10 @@ async fn get_all_pulls(client: &reqwest::Client, owner: &str, repo: &str) -> Res
     Ok(result)
 }
 
+//probably a good idea to make the map key the username
 fn get_users_pr_counts(client: &reqwest::Client, owner: &str, repo: &str, start_time: i64, end_time: i64) -> Result<HashMap<u32,User>,Error>{
     let mut result = HashMap::new();
-    let pulls = get_all_pulls(client, owner, repo).unwrap();
+    let pulls = get_all_pulls(client, owner, repo)?;
 
     for pull in pulls {
         //ensure pull made by kwoc student
@@ -136,9 +141,9 @@ fn main() -> Result<(),Error> {
         }
     };
 
-    let KWOC_START_TIME = env::var("KWOC_START_TIME").expect("KWOC_START_TIME not found.").parse::<i64>().unwrap();
-    let KWOC_MID_EVALS_TIME = env::var("KWOC_MID_EVALS_TIME").expect("KWOC_MID_EVALS_TIME not found.").parse::<i64>().unwrap();
-    let KWOC_END_EVALS_TIME = env::var("KWOC_END_EVALS_TIME").expect("KWOC_END_EVALS_TIME not found.").parse::<i64>().unwrap();
+    let kwoc_start_time = env::var("KWOC_START_TIME").expect("KWOC_START_TIME not found.").parse::<i64>().unwrap();
+    let kwoc_mid_evals_time = env::var("KWOC_MID_EVALS_TIME").expect("KWOC_MID_EVALS_TIME not found.").parse::<i64>().unwrap();
+    let kwoc_end_evals_time = env::var("KWOC_END_EVALS_TIME").expect("KWOC_END_EVALS_TIME not found.").parse::<i64>().unwrap();
 
     let client = match access_token {
         Some(token) => {
@@ -161,12 +166,16 @@ fn main() -> Result<(),Error> {
         }
     };
 
-    print_rate_limit(&client)?;
-    let users = get_users_pr_counts(&client, "kossiitkgp", "events",KWOC_START_TIME,KWOC_MID_EVALS_TIME).unwrap();
+    let conn = Connection::open("./devDB.db").unwrap();
 
-    for (key, value) in users.iter() {
-        println!("{key} {:?}",value);
-    }
+    let kwoc_students = get_students(&conn).unwrap();
+
+    // print_rate_limit(&client)?;
+    // let users = get_users_pr_counts(&client, "kossiitkgp", "events",kwoc_start_time,kwoc_mid_evals_time).unwrap();
+
+    // for (key, value) in users.iter() {
+    //     println!("{key} {:?}",value);
+    // }
 
 
     // let pulls = get_all_pulls(&client, "kossiitkgp", "events")?;
