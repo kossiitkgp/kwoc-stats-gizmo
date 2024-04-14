@@ -23,6 +23,10 @@ fn main() -> Result<(), Error> {
         .expect("KWOC_END_EVALS_TIME not found.")
         .parse::<i64>()
         .expect("KWOC_END_EVALS_TIME not valid.");
+    let is_end_evals = env::var("IS_END_EVALS")
+        .expect("IS_END_EVALS not found")
+        .parse::<bool>()
+        .expect("IS_END_EVALS not valid.");
 
     let conn = Connection::open("./devDB.db").expect("devDB.db not found.");
 
@@ -34,6 +38,7 @@ fn main() -> Result<(), Error> {
         kwoc_mid_evals_time,
         &mut kwoc_students,
         &kwoc_projects,
+        is_end_evals,
     )
     .expect("updating failed.");
 

@@ -9,8 +9,8 @@ pub struct Student {
     email: Option<String>,
     college: Option<String>,
     username: Option<String>,
-    passed_mid_evals: Option<String>,
-    passed_end_evals: Option<String>,
+    pub passed_mid_evals: Option<String>,
+    pub passed_end_evals: Option<String>,
     blog_link: Option<String>,
 
     commit_count: Option<u32>,

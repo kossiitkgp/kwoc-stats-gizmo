@@ -17,6 +17,7 @@ fn create_client() -> Result<Client, Error> {
         Ok(token) => Some(token),
         Err(err) => {
             println!("GH_ACCESS_TOKEN not found.");
+            println!("Continuing without token.");
             None
         }
     };
@@ -125,6 +126,7 @@ pub fn update_users_pr_counts(
     end_time: i64,
     kwoc_students: &mut HashMap<String, Student>,
     kwoc_projects: &Vec<Project>,
+    is_end_vals: bool,
 ) -> Result<(), Error> {
     let pulls = kwoc_projects.iter().flat_map(|project| {
         let (owner, repo) = split_repo_link(project.repo_link.as_ref().unwrap());
@@ -135,6 +137,18 @@ pub fn update_users_pr_counts(
         let username = pull.user.as_ref().unwrap().login.as_ref().unwrap();
 
         if !kwoc_students.contains_key(username) {
+            return;
+        }
+
+        if is_end_vals
+            && kwoc_students
+                .get(username)
+                .unwrap()
+                .passed_mid_evals
+                .as_ref()
+                .unwrap()
+                != "true"
+        {
             return;
         }
 
