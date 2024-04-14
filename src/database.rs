@@ -5,110 +5,113 @@ use std::collections::HashMap;
 pub struct Student {
     id: u32,
 
-    Name: Option<String>,
-    Email: Option<String>,
-    College: Option<String>,
-    Username: Option<String>,
-    PassedMidEvals: Option<String>,
-    PassedEndEvals: Option<String>,
-    BlogLink: Option<String>,
+    name: Option<String>,
+    email: Option<String>,
+    college: Option<String>,
+    username: Option<String>,
+    passed_mid_evals: Option<String>,
+    passed_end_evals: Option<String>,
+    blog_link: Option<String>,
 
-    CommitCount: Option<u32>,
-    PullCount: Option<u32>,
-    LinesAdded: Option<u32>,
-    LinesRemoved: Option<u32>,
-    
+    commit_count: Option<u32>,
+    pull_count: Option<u32>,
+    lines_added: Option<u32>,
+    lines_removed: Option<u32>,
+
     pub open_pr_count: Option<u32>,
     pub merged_pr_count: Option<u32>,
 
-    LanguagesUsed: Option<String>,
-    ProjectsWorked: Option<String>,
-    Pulls: Option<String>,
+    languages_used: Option<String>,
+    projects_worked: Option<String>,
+    pulls: Option<String>,
 }
 
 #[derive(Debug)]
 pub struct Project {
     id: u32,
-    Name: Option<String>,
-    Description: Option<String>,
-    Tags: Option<String>,
-    pub RepoLink: Option<String>,
-    CommChannel: Option<String>,
-    ReadmeLink: Option<String>,
-    ProjectStatus: Option<String>,
+    name: Option<String>,
+    description: Option<String>,
+    tags: Option<String>,
+    pub repo_link: Option<String>,
+    comm_channel: Option<String>,
+    readme_link: Option<String>,
+    project_status: Option<String>,
 
-    LastPullTime: Option<u32>,
+    last_pull_time: Option<u32>,
 
-    CommitCount: Option<u32>,
-    PullCount: Option<u32>,
-    LinesAdded: Option<u32>,
-    LinesRemoved: Option<u32>,
+    commit_count: Option<u32>,
+    pull_count: Option<u32>,
+    lines_added: Option<u32>,
+    lines_removed: Option<u32>,
 
-    Contributers: Option<String>,
-    Pulls: Option<String>,
+    contributers: Option<String>,
+    pulls: Option<String>,
 
-    MentorId: Option<u32>,
-    SecondaryMentorId: Option<u32>
+    mentor_id: Option<u32>,
+    secondary_mentor_id: Option<u32>,
 }
 
-pub fn get_students(conn: &Connection) -> Result<HashMap<String,Student>>{
+pub fn get_students(conn: &Connection) -> Result<HashMap<String, Student>> {
     let mut statement = conn.prepare("SELECT * FROM students")?;
-    let iterator = statement.query_map([], |row| Ok(
-        Student{
+    let iterator = statement.query_map([], |row| {
+        Ok(Student {
             id: row.get(0)?,
-            Name: row.get(4)?,
-            Email: row.get(5)?,
-            College: row.get(6)?,
-            Username: row.get(7)?,
-            PassedMidEvals: row.get(8)?,
-            PassedEndEvals: row.get(9)?,
-            BlogLink: row.get(10)?,
-            CommitCount: row.get(11)?,
-            PullCount: row.get(12)?,
-            LinesAdded: row.get(13)?,
-            LinesRemoved: row.get(14)?,
-            LanguagesUsed: row.get(15)?,
-            ProjectsWorked: row.get(16)?,
-            Pulls: row.get(17)?,
+            name: row.get(4)?,
+            email: row.get(5)?,
+            college: row.get(6)?,
+            username: row.get(7)?,
+            passed_mid_evals: row.get(8)?,
+            passed_end_evals: row.get(9)?,
+            blog_link: row.get(10)?,
+            commit_count: row.get(11)?,
+            pull_count: row.get(12)?,
+            lines_added: row.get(13)?,
+            lines_removed: row.get(14)?,
+            languages_used: row.get(15)?,
+            projects_worked: row.get(16)?,
+            pulls: row.get(17)?,
             open_pr_count: Some(0),
             merged_pr_count: Some(0),
-        }
-    ))?;
-    let result: HashMap<String,Student> = iterator.map(|x|
-        (x.as_ref().unwrap().Username.as_ref().unwrap().clone(),x.unwrap())
-    ).collect();
+        })
+    })?;
+    let result: HashMap<String, Student> = iterator
+        .map(|x| {
+            (
+                x.as_ref().unwrap().username.as_ref().unwrap().clone(),
+                x.unwrap(),
+            )
+        })
+        .collect();
     Ok(result)
 }
 
-pub fn get_projects(conn: &Connection) -> Result<Vec<Project>>{
+pub fn get_projects(conn: &Connection) -> Result<Vec<Project>> {
     let mut statement = conn.prepare("SELECT * FROM projects")?;
-    let iterator = statement.query_map([], |row| Ok(
-        Project{
+    let iterator = statement.query_map([], |row| {
+        Ok(Project {
             id: row.get(0)?,
-            Name: row.get(4)?,
-            Description: row.get(5)?,
-            Tags: row.get(6)?,
-            RepoLink: row.get(7)?,
-            CommChannel: row.get(8)?,
-            ReadmeLink: row.get(9)?,
-            ProjectStatus: row.get(10)?,
+            name: row.get(4)?,
+            description: row.get(5)?,
+            tags: row.get(6)?,
+            repo_link: row.get(7)?,
+            comm_channel: row.get(8)?,
+            readme_link: row.get(9)?,
+            project_status: row.get(10)?,
 
-            LastPullTime: row.get(11)?,
+            last_pull_time: row.get(11)?,
 
-            CommitCount: row.get(12)?,
-            PullCount: row.get(13)?,
-            LinesAdded: row.get(14)?,
-            LinesRemoved: row.get(15)?,
+            commit_count: row.get(12)?,
+            pull_count: row.get(13)?,
+            lines_added: row.get(14)?,
+            lines_removed: row.get(15)?,
 
-            Contributers: row.get(16)?,
-            Pulls: row.get(17)?,
+            contributers: row.get(16)?,
+            pulls: row.get(17)?,
 
-            MentorId: row.get(18)?,
-            SecondaryMentorId: row.get(19)?
-        }
-    ))?;
-    let result: Vec<Project> = iterator.map(|x|
-        x.unwrap()
-    ).collect();
+            mentor_id: row.get(18)?,
+            secondary_mentor_id: row.get(19)?,
+        })
+    })?;
+    let result: Vec<Project> = iterator.map(|x| x.unwrap()).collect();
     Ok(result)
 }

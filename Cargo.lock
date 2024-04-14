@@ -1024,6 +1024,7 @@ dependencies = [
  "dotenv",
  "futures-io",
  "http",
+ "lazy_static",
  "regex",
  "reqwest",
  "rusqlite",
