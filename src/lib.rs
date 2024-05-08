@@ -187,7 +187,7 @@ pub async fn print_rate_limit() -> Result<(), Error> {
 
 pub fn print_passed_students(kwoc_students: &HashMap<String, Student>) -> Result<(), Error> {
     for (username, data) in kwoc_students {
-        if data.merged_pr_count.unwrap() + data.merged_pr_count.unwrap() >= 1 {
+        if data.merged_pr_count.unwrap() + data.open_pr_count.unwrap() >= 1 {
             println!("{username}");
         }
     }
