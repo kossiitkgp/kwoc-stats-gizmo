@@ -15,7 +15,7 @@ const PER_PAGE: u32 = 100;
 fn create_client() -> Result<Client, Error> {
     let access_token = match env::var("GH_ACCESS_TOKEN") {
         Ok(token) => Some(token),
-        Err(err) => {
+        Err(_) => {
             println!("GH_ACCESS_TOKEN not found.");
             println!("Continuing without token.");
             None
@@ -44,13 +44,13 @@ lazy_static! {
     static ref CLIENT: Client = create_client().unwrap();
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct User {
     login: Option<String>,
     id: Option<u32>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Pull {
     url: Option<String>,
     id: Option<u32>,
@@ -134,18 +134,18 @@ pub fn update_users_pr_counts(
     });
 
     pulls.for_each(|pull| {
-        let username = pull.user.as_ref().unwrap().login.as_ref().unwrap();
+        let username = pull.user.clone().unwrap().login.unwrap();
 
-        if !kwoc_students.contains_key(username) {
+        if !kwoc_students.contains_key(&username) {
             return;
         }
 
         if is_end_vals
             && kwoc_students
-                .get(username)
+                .get(&username)
                 .unwrap()
                 .passed_mid_evals
-                .as_ref()
+                .clone()
                 .unwrap()
                 != "true"
         {
@@ -160,7 +160,7 @@ pub fn update_users_pr_counts(
             return;
         }
 
-        let student = kwoc_students.get_mut(username).unwrap();
+        let student = kwoc_students.get_mut(&username).unwrap();
 
         if pull.state.unwrap() == "open" {
             *student.open_pr_count.as_mut().unwrap() += 1;
