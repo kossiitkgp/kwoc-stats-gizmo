@@ -128,7 +128,12 @@ pub fn update_users_pr_counts(
     kwoc_projects: &Vec<Project>,
     is_end_vals: bool,
 ) -> Result<(), Error> {
+    let total = kwoc_projects.len();
+    let mut count: u32 = 0;
+
     let pulls = kwoc_projects.iter().flat_map(|project| {
+        println!("{}/{}", count, total);
+        count += 1;
         let (owner, repo) = split_repo_link(project.repo_link.as_ref().unwrap());
         get_all_pulls(owner, repo).unwrap()
     });
